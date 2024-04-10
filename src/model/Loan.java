@@ -1,6 +1,8 @@
 package model;
 
 
+import java.util.Date;
+
 public class Loan {
     protected static int idCounter = 0;
     protected String id;
@@ -35,6 +37,25 @@ public class Loan {
                 ", returned=" + returned +
                 ", extended=" + extended +
                 '}';
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public Book getBook() {
+        return this.book;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public void completeLoan() {
+        this.book.returnBook();
+        this.returned = true;
+        this.returnDate = new Date().toString();
+        this.book.returnBook();
     }
 
 }

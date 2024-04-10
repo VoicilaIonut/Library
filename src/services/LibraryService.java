@@ -2,7 +2,6 @@ package services;
 import model.*;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 class Database {
@@ -60,8 +59,36 @@ class Database {
         return publishers.get(publishers.size() - 1);
     }
 
-}
+    public User getUserByEmail(String email) {
+        for (User u : users) {
+            if (u.getEmail().equals(email)) {
+                return u;
+            }
+        }
+        return null;
+    }
 
+    public Document getDocumentByTitle(String title) {
+        for (Document d : documents) {
+            if (d.getTitle().equals(title)) {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    public Loan getLoan(User user, Book book) {
+        for (Loan l : loans) {
+            if (l.getUser().equals(user) && l.getBook().equals(book)) {
+                return l;
+            }
+        }
+        return null;
+    }
+
+}
+// All the variables in the "add" methods are hardcoded, so the methods will always add the same documents to the database.
+// TODO: Refactor the "add" methods to read parameters from the user and add the documents based on the user input.
 public class LibraryService {
     Database db = Database.getInstance();
 
@@ -75,7 +102,7 @@ public class LibraryService {
         Category category = db.getCategoryByNameOrCreate(categoryName, "description");
 
         String documentTitle = "title";
-        int documentYear = 2024;
+        int documentYear = 2025;
         int documentPages = 100;
         db.documents.add(new Document(documentTitle, author, category, documentYear, documentPages));
     }
@@ -92,7 +119,7 @@ public class LibraryService {
         String categoryName = "category";
         Category category = db.getCategoryByNameOrCreate(categoryName, "description");
 
-        String documentTitle = "title";
+        String documentTitle = "book";
         int documentYear = 2021;
         int documentPages = 100;
         String ISBN = "isbn";
@@ -172,4 +199,68 @@ public class LibraryService {
         }
         return articles;
     }
+
+    public void addUser() {
+        String name = "name";
+        String email = "email";
+        if (db.getUserByEmail(email) == null) {
+            db.users.add(new User(name, email));
+        }
+    }
+
+    public void addLoan(String userEmail, String documentTitle) {
+        User user = db.getUserByEmail(userEmail);
+        if (user == null) {
+            System.out.println("User not found");
+            return;
+        }
+        Document document = db.getDocumentByTitle(documentTitle);
+        if (document == null) {
+            System.out.println("Document not found");
+            return;
+        }
+
+        if (document instanceof Book book) {
+            if (book.getCopies() == 0) {
+                System.out.println("No copies available");
+                return;
+            }
+        } else {
+            System.out.println("Only books can be loaned");
+            return;
+        }
+        db.loans.add(new Loan((Book) document, user, "date", "dueDate"));
+        System.out.println("Loan added");
+    }
+
+    public void completeLoan(String userEmail, String documentTitle) {
+        User user = db.getUserByEmail(userEmail);
+        if (user == null) {
+            System.out.println("User not found");
+            return;
+        }
+        Document document = db.getDocumentByTitle(documentTitle);
+        if (document == null) {
+            System.out.println("Document not found");
+            return;
+        }
+        if (document instanceof Book book) {
+            if (book.getCopies() == 0) {
+                System.out.println("No copies available");
+                return;
+            }
+        } else {
+            System.out.println("Only books can be loaned");
+            return;
+        }
+        Loan loan =  db.getLoan(user, (Book) document);
+        if (loan == null) {
+            System.out.println("Loan not found");
+            return;
+        }
+        loan.completeLoan();
+        System.out.println("Loan completed");
+    }
+
+
 }

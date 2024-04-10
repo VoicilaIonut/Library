@@ -6,15 +6,11 @@ public class User {
     protected String id;
     protected String name;
     protected String email;
-    protected String phone;
-    protected String address;
 
-    public User(String name, String email, String phone, String address) {
+    public User(String name, String email) {
         this.id = String.valueOf(++idCounter);
         this.name = name;
         this.email = email;
-        this.phone = phone;
-        this.address = address;
     }
 
     public String toString() {
@@ -22,9 +18,19 @@ public class User {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", address='" + address + '\'' +
                 '}';
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getEmail() {
+        return this.email;
     }
 }
 
