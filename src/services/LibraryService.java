@@ -3,10 +3,11 @@ import model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 class Database {
     public static Database instance = null;
-    public List<Document> documents;
+    public PriorityQueue<Document> documents;
     public List<User> users;
     public List<Loan> loans;
     public List<Author> authors;
@@ -14,7 +15,7 @@ class Database {
     public List<Publisher> publishers;
 
     private Database() {
-        this.documents = new ArrayList<>();
+        this.documents = new PriorityQueue<>(new DocumentComparator());
         this.users = new ArrayList<>();
         this.loans = new ArrayList<>();
         this.authors = new ArrayList<>();
@@ -104,7 +105,7 @@ public class LibraryService {
         String documentTitle = "title";
         int documentYear = 2025;
         int documentPages = 100;
-        db.documents.add(new Document(documentTitle, author, category, documentYear, documentPages));
+        db.documents.offer(new Document(documentTitle, author, category, documentYear, documentPages));
     }
 
     public void addBook() {
@@ -124,7 +125,7 @@ public class LibraryService {
         int documentPages = 100;
         String ISBN = "isbn";
         int copies = 10;
-        db.documents.add(new Book(documentTitle, author, ISBN, category, publisher, documentYear, documentPages, copies));
+        db.documents.offer(new Book(documentTitle, author, ISBN, category, publisher, documentYear, documentPages, copies));
     }
 
     public void addArticle() {
@@ -141,7 +142,7 @@ public class LibraryService {
         String journal = "journal";
         int volume = 1;
         int number = 1;
-        db.documents.add(new Article(documentTitle, author, category, journal, volume, number, documentYear, documentPages));
+        db.documents.offer(new Article(documentTitle, author, category, journal, volume, number, documentYear, documentPages));
     }
 
     public List<Document> getDocumentsByAuthor(String authorName) {
@@ -198,6 +199,14 @@ public class LibraryService {
             }
         }
         return articles;
+    }
+
+    public List<Publisher> getPublishers() {
+        return db.publishers;
+    }
+
+    public List<Author> getAuthors() {
+        return db.authors;
     }
 
     public void addUser() {

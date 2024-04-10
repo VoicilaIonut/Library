@@ -79,5 +79,13 @@ public class Main {
         for (Document document : documents) {
             System.out.println(document);
         }
+        System.out.println("Publishers:");
+        for (Publisher publisher : libraryService.getPublishers()) {
+            System.out.println(publisher);
+        }
+        System.out.println("Authors:");
+        for (Author author : libraryService.getAuthors()) {
+            System.out.println(author);
+        }
     }
 }
