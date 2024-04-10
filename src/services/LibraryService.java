@@ -1,12 +1,14 @@
 package services;
+
 import model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 class Database {
     public static Database instance = null;
-    public List<Document> documents;
+    public PriorityQueue<Document> documents;
     public List<User> users;
     public List<Loan> loans;
     public List<Author> authors;
@@ -14,7 +16,7 @@ class Database {
     public List<Publisher> publishers;
 
     private Database() {
-        this.documents = new ArrayList<>();
+        this.documents = new PriorityQueue<>(new DocumentComparator());
         this.users = new ArrayList<>();
         this.loans = new ArrayList<>();
         this.authors = new ArrayList<>();
@@ -87,61 +89,30 @@ class Database {
     }
 
 }
-// All the variables in the "add" methods are hardcoded, so the methods will always add the same documents to the database.
-// TODO: Refactor the "add" methods to read parameters from the user and add the documents based on the user input.
+
 public class LibraryService {
     Database db = Database.getInstance();
 
-    public void addDocument() {
-        String authorName = "author";
-        String authorEmail = "email";
+    public Response addDocument(String authorName, String authorEmail, String categoryName, String documentTitle, int documentYear, int documentPages) {
         Author author = db.getAuthorOrCreate(authorName, authorEmail);
-
-
-        String categoryName = "category";
-        Category category = db.getCategoryByNameOrCreate(categoryName, "description");
-
-        String documentTitle = "title";
-        int documentYear = 2025;
-        int documentPages = 100;
-        db.documents.add(new Document(documentTitle, author, category, documentYear, documentPages));
+        Category category = db.getCategoryByNameOrCreate(categoryName, "");
+        db.documents.offer(new Document(documentTitle, author, category, documentYear, documentPages));
+        return new Response(true, "Document added successfully");
     }
 
-    public void addBook() {
-        String authorName = "author";
-        String authorEmail = "email";
+    public Response addBook(String authorName, String authorEmail, String publisherName, String publisherEmail, String categoryName, String documentTitle, int documentYear, int documentPages, String ISBN, int copies) {
         Author author = db.getAuthorOrCreate(authorName, authorEmail);
-
-        String publisherName = "publisher";
-        String publisherEmail = "email";
         Publisher publisher = db.getPublisherOrCreate(publisherName, publisherEmail);
-
-        String categoryName = "category";
-        Category category = db.getCategoryByNameOrCreate(categoryName, "description");
-
-        String documentTitle = "book";
-        int documentYear = 2021;
-        int documentPages = 100;
-        String ISBN = "isbn";
-        int copies = 10;
-        db.documents.add(new Book(documentTitle, author, ISBN, category, publisher, documentYear, documentPages, copies));
+        Category category = db.getCategoryByNameOrCreate(categoryName, "");
+        db.documents.offer(new Book(documentTitle, author, ISBN, category, publisher, documentYear, documentPages, copies));
+        return new Response(true, "Book added successfully");
     }
 
-    public void addArticle() {
-        String authorName = "author";
-        String authorEmail = "email";
+    public Response addArticle(String authorName, String authorEmail, String categoryName, String documentTitle, int documentYear, int documentPages, String journal, int volume, int number) {
         Author author = db.getAuthorOrCreate(authorName, authorEmail);
-
-        String categoryName = "category";
         Category category = db.getCategoryByNameOrCreate(categoryName, "description");
-
-        String documentTitle = "title";
-        int documentYear = 2024;
-        int documentPages = 100;
-        String journal = "journal";
-        int volume = 1;
-        int number = 1;
-        db.documents.add(new Article(documentTitle, author, category, journal, volume, number, documentYear, documentPages));
+        db.documents.offer(new Article(documentTitle, author, category, journal, volume, number, documentYear, documentPages));
+        return new Response(true, "Article added successfully");
     }
 
     public List<Document> getDocumentsByAuthor(String authorName) {
@@ -200,67 +171,59 @@ public class LibraryService {
         return articles;
     }
 
-    public void addUser() {
-        String name = "name";
-        String email = "email";
+    public List<Publisher> getPublishers() {
+        return db.publishers;
+    }
+
+    public List<Author> getAuthors() {
+        return db.authors;
+    }
+
+    public Response addUser(String name, String email) {
         if (db.getUserByEmail(email) == null) {
             db.users.add(new User(name, email));
+            return new Response(true, "User added successfully");
         }
+        return new Response(false, "User already exists");
     }
 
-    public void addLoan(String userEmail, String documentTitle) {
+    public Response addLoan(String userEmail, String documentTitle) {
         User user = db.getUserByEmail(userEmail);
         if (user == null) {
-            System.out.println("User not found");
-            return;
+            return new Response(false, "User not found");
         }
         Document document = db.getDocumentByTitle(documentTitle);
         if (document == null) {
-            System.out.println("Document not found");
-            return;
+            return new Response(false, "Document not found");
         }
 
         if (document instanceof Book book) {
             if (book.getCopies() == 0) {
-                System.out.println("No copies available");
-                return;
+                return new Response(false, "No copies available");
             }
         } else {
-            System.out.println("Only books can be loaned");
-            return;
+            return new Response(false, "Only books can be loaned");
         }
         db.loans.add(new Loan((Book) document, user, "date", "dueDate"));
-        System.out.println("Loan added");
+        return new Response(true, "Loan added");
     }
 
-    public void completeLoan(String userEmail, String documentTitle) {
+    public Response completeLoan(String userEmail, String documentTitle) {
         User user = db.getUserByEmail(userEmail);
         if (user == null) {
-            System.out.println("User not found");
-            return;
+            return new Response(false, "User not found");
         }
         Document document = db.getDocumentByTitle(documentTitle);
         if (document == null) {
-            System.out.println("Document not found");
-            return;
+            return new Response(false, "Document not found");
         }
-        if (document instanceof Book book) {
-            if (book.getCopies() == 0) {
-                System.out.println("No copies available");
-                return;
-            }
-        } else {
-            System.out.println("Only books can be loaned");
-            return;
-        }
-        Loan loan =  db.getLoan(user, (Book) document);
+        Loan loan = db.getLoan(user, (Book) document);
         if (loan == null) {
-            System.out.println("Loan not found");
-            return;
+            return new Response(false, "Loan not found");
+        } else if (loan.isCompleted()) {
+            return new Response(false, "Loan already completed");
         }
         loan.completeLoan();
-        System.out.println("Loan completed");
+        return new Response(true, "Loan completed");
     }
-
-
 }

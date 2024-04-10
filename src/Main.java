@@ -27,18 +27,27 @@
 // Only the books can be loaned. The books have a number of copies and a number of loans. When a book is loaned, the number of copies decreases, and the number of loans increases. When a book is returned, the number of copies increases.
 
 import java.util.List;
+
 import model.*;
 import services.*;
 
-
-
+// TODO: Create a console gui for the application to users to interact with the application, or maybe use a web interface.
 public class Main {
     public static void main(String[] args) {
         LibraryService libraryService = new LibraryService();
-        libraryService.addDocument();
-        libraryService.addBook();
-        libraryService.addArticle();
+        Response response = null;
+        response = libraryService.addDocument("author1", "email", "category1", "document1", 2020, 1);
+        System.out.println(response.getMessage());
+
+        response = libraryService.addBook("author1", "email", "publisher1", "email",
+                "category1", "book1", 2020, 1, "12345", 1);
+        System.out.println(response.getMessage());
+
+        response = libraryService.addArticle("author1", "email", "category1", "article1", 2021, 1, "journal1", 1, 1);
+        System.out.println(response.getMessage());
+
         System.out.println("All documents by popularity:");
+
         List<Document> documents = libraryService.getAllDocumentsByPopularity();
         for (Document document : documents) {
             System.out.println(document);
@@ -69,15 +78,38 @@ public class Main {
             System.out.println(document);
         }
 
-        libraryService.addUser();
-        libraryService.addLoan("email", "book");
-        libraryService.completeLoan("email", "book");
+        response = libraryService.addUser("name", "email");
+        System.out.println(response.getMessage());
 
-        libraryService.addBook();
+        response = libraryService.addLoan("email", "book1");
+        System.out.println(response.getMessage());
+
+        response = libraryService.addLoan("email", "book1");
+        System.out.println(response.getMessage());
+
+        response = libraryService.completeLoan("email", "book1");
+        System.out.println(response.getMessage());
+
+        response = libraryService.completeLoan("email", "book1");
+        System.out.println(response.getMessage());
+
+        libraryService.addBook("author1", "email", "publisher1", "email",
+                "category1", "book2", 2025, 1, "12345", 1);
         System.out.println("All documents by popularity:");
         documents = libraryService.getAllDocumentsByPopularity();
         for (Document document : documents) {
             System.out.println(document);
+        }
+
+        List<Publisher> publishers = libraryService.getPublishers();
+        System.out.println("Publishers:");
+        for (Publisher publisher : publishers) {
+            System.out.println(publisher);
+        }
+        List<Author> authors = libraryService.getAuthors();
+        System.out.println("Authors:");
+        for (Author author : authors) {
+            System.out.println(author);
         }
     }
 }

@@ -58,4 +58,8 @@ public class Loan {
         this.book.returnBook();
     }
 
+    public boolean isCompleted() {
+        return this.returned;
+    }
+
 }
