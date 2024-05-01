@@ -1,99 +1,17 @@
 package services;
 
-import model.*;
-import repository.DefaultDocumentRepository;
-import repository.DocumentRepository;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
-
-class Database {
-  public static Database instance = null;
-  public PriorityQueue<Document> documents;
-  public List<User> users;
-  public List<Loan> loans;
-  public List<Author> authors;
-  public List<Category> categories;
-  public List<Publisher> publishers;
-
-  private Database() {
-    this.documents = new PriorityQueue<>(new DocumentComparator());
-    this.users = new ArrayList<>();
-    this.loans = new ArrayList<>();
-    this.authors = new ArrayList<>();
-    this.categories = new ArrayList<>();
-    this.publishers = new ArrayList<>();
-  }
-
-  public static Database getInstance() {
-    if (instance == null) {
-      instance = new Database();
-    }
-    return instance;
-  }
-
-  public Author getAuthorOrCreate(String name, String email) {
-    for (Author a : authors) {
-      if (a.getName().equals(name) && a.getEmail().equals(email)) {
-        return a;
-      }
-    }
-    authors.add(new Author(name, email));
-    return authors.get(authors.size() - 1);
-  }
-
-  public Category getCategoryByNameOrCreate(String name, String description) {
-    for (Category c : categories) {
-      if (c.getName().equals(name)) {
-        return c;
-      }
-    }
-    categories.add(new Category(name, description));
-    return categories.get(categories.size() - 1);
-  }
-
-  public Publisher getPublisherOrCreate(String name, String email) {
-    for (Publisher p : publishers) {
-      if (p.getName().equals(name) && p.getEmail().equals(email)) {
-        return p;
-      }
-    }
-    publishers.add(new Publisher(name, email));
-    return publishers.get(publishers.size() - 1);
-  }
-
-  public User getUserByEmail(String email) {
-    for (User u : users) {
-      if (u.getEmail().equals(email)) {
-        return u;
-      }
-    }
-    return null;
-  }
-
-  public Document getDocumentByTitle(String title) {
-    for (Document d : documents) {
-      if (d.getTitle().equals(title)) {
-        return d;
-      }
-    }
-    return null;
-  }
-
-  public Loan getLoan(User user, Book book) {
-    for (Loan l : loans) {
-      if (l.getUser().equals(user) && l.getBook().equals(book)) {
-        return l;
-      }
-    }
-    return null;
-  }
-}
+import model.*;
+import repository.*;
 
 public class LibraryService {
-  Database db = Database.getInstance();
   DocumentRepository documentRepository = new DefaultDocumentRepository();
+  AuthorRepository authorRepository = new DefaultAuthorRepository();
+  UserRepository userRepository = new DefaultUserRepository();
+  PublisherRepository publisherRepository = new DefaultPublisherRepository();
+  LoanRepository loanRepository = new DefaultLoanRepository();
+  CategoryRepository categoryRepository = new DefaultCategoryRepository();
 
   public Response addDocument(
       String authorName,
@@ -102,8 +20,8 @@ public class LibraryService {
       String documentTitle,
       int documentYear,
       int documentPages) {
-    Author author = db.getAuthorOrCreate(authorName, authorEmail);
-    Category category = db.getCategoryByNameOrCreate(categoryName, "");
+    Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
+    Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
     documentRepository.addDocument(
         new Document(documentTitle, author, category, documentYear, documentPages));
     return new Response(true, "Document added successfully");
@@ -120,9 +38,9 @@ public class LibraryService {
       int documentPages,
       String ISBN,
       int copies) {
-    Author author = db.getAuthorOrCreate(authorName, authorEmail);
-    Publisher publisher = db.getPublisherOrCreate(publisherName, publisherEmail);
-    Category category = db.getCategoryByNameOrCreate(categoryName, "");
+    Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
+    Publisher publisher = publisherRepository.getPublisherOrCreate(publisherName, publisherEmail);
+    Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
     documentRepository.addDocument(
         new Book(
             documentTitle, author, ISBN, category, publisher, documentYear, documentPages, copies));
@@ -139,11 +57,8 @@ public class LibraryService {
       String journal,
       int volume,
       int number) {
-    Author author = db.getAuthorOrCreate(authorName, authorEmail);
-    Category category = db.getCategoryByNameOrCreate(categoryName, "");
-    db.documents.offer(
-        new Article(
-            documentTitle, author, category, journal, volume, number, documentYear, documentPages));
+    Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
+    Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
     documentRepository.addDocument(
         new Article(
             documentTitle, author, category, journal, volume, number, documentYear, documentPages));
@@ -151,44 +66,26 @@ public class LibraryService {
   }
 
   public List<Document> getDocumentsByAuthor(String authorName) {
-    List<Document> documentsByAuthor = new ArrayList<>();
-    for (Document document : db.documents) {
-      if (document.getAuthor().getName().equals(authorName)) {
-        documentsByAuthor.add(document);
-      }
-    }
-    return documentsByAuthor;
+    Author author = authorRepository.getAuthorOrCreate(authorName, "");
+    return documentRepository.getDocumentsByAuthor(author);
   }
 
   public List<Document> getDocumentsByCategory(String categoryName) {
-    List<Document> documentsByCategory = new ArrayList<>();
-    for (Document document : db.documents) {
-      if (document.getCategory().getName().equals(categoryName)) {
-        documentsByCategory.add(document);
-      }
-    }
-    return documentsByCategory;
+    Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
+    return documentRepository.getDocumentsByCategory(category);
   }
 
   public List<Document> getDocumentsByTitle(String title) {
-    List<Document> documentsByTitle = new ArrayList<>();
-    for (Document document : db.documents) {
-      if (document.getTitle().equals(title)) {
-        documentsByTitle.add(document);
-      }
-    }
-    return documentsByTitle;
+    return documentRepository.getDocumentsByTitle(title);
   }
 
   public List<Document> getAllDocumentsByPopularity() {
-    List<Document> sortedDocuments = new ArrayList<>(db.documents);
-    sortedDocuments.sort(new DocumentComparator());
-    return sortedDocuments;
+    return documentRepository.getDocumentsByPopularity().stream().toList();
   }
 
   public List<Book> getBooks() {
     List<Book> books = new ArrayList<>();
-    for (Document document : db.documents) {
+    for (Document document : documentRepository.getDocuments()) {
       if (document instanceof Book) {
         books.add((Book) document);
       }
@@ -198,7 +95,7 @@ public class LibraryService {
 
   public List<Article> getArticles() {
     List<Article> articles = new ArrayList<>();
-    for (Document document : db.documents) {
+    for (Document document : documentRepository.getDocuments()) {
       if (document instanceof Article) {
         articles.add((Article) document);
       }
@@ -207,27 +104,27 @@ public class LibraryService {
   }
 
   public List<Publisher> getPublishers() {
-    return db.publishers;
+    return publisherRepository.getPublishers();
   }
 
   public List<Author> getAuthors() {
-    return db.authors;
+    return authorRepository.getAuthors();
   }
 
   public Response addUser(String name, String email) {
-    if (db.getUserByEmail(email) == null) {
-      db.users.add(new User(name, email));
+    if (userRepository.getUserByEmail(email) == null) {
+      userRepository.addUser(new User(name, email));
       return new Response(true, "User added successfully");
     }
     return new Response(false, "User already exists");
   }
 
   public Response addLoan(String userEmail, String documentTitle) {
-    User user = db.getUserByEmail(userEmail);
+    User user = userRepository.getUserByEmail(userEmail);
     if (user == null) {
       return new Response(false, "User not found");
     }
-    Document document = db.getDocumentByTitle(documentTitle);
+    Document document = documentRepository.getDocumentByTitle(documentTitle);
     if (document == null) {
       return new Response(false, "Document not found");
     }
@@ -239,20 +136,20 @@ public class LibraryService {
     } else {
       return new Response(false, "Only books can be loaned");
     }
-    db.loans.add(new Loan((Book) document, user, "date", "dueDate"));
+    loanRepository.addLoan(new Loan((Book) document, user, "date", "dueDate"));
     return new Response(true, "Loan added");
   }
 
   public Response completeLoan(String userEmail, String documentTitle) {
-    User user = db.getUserByEmail(userEmail);
+    User user = userRepository.getUserByEmail(userEmail);
     if (user == null) {
       return new Response(false, "User not found");
     }
-    Document document = db.getDocumentByTitle(documentTitle);
+    Document document = documentRepository.getDocumentByTitle(documentTitle);
     if (document == null) {
       return new Response(false, "Document not found");
     }
-    Loan loan = db.getLoan(user, (Book) document);
+    Loan loan = loanRepository.getLoan(user, (Book) document);
     if (loan == null) {
       return new Response(false, "Loan not found");
     } else if (loan.isCompleted()) {

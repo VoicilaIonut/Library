@@ -24,13 +24,14 @@ public class DefaultDocumentRepository implements DocumentRepository {
     return documents;
   }
 
-  public Document getDocumentByTitle(String title) {
+  public List<Document> getDocumentsByTitle(String title) {
+    List<Document> documentsByTitle = new ArrayList<>();
     for (Document d : documents) {
       if (d.getTitle().equals(title)) {
-        return d;
+        documentsByTitle.add(d);
       }
     }
-    return null;
+    return documentsByTitle;
   }
 
   public List<Document> getDocumentsByAuthor(Author author) {
@@ -51,6 +52,15 @@ public class DefaultDocumentRepository implements DocumentRepository {
       }
     }
     return documentsByCategory;
+  }
+
+  public Document getDocumentByTitle(String title) {
+    for (Document d : getDocuments()) {
+      if (d.getTitle().equals(title)) {
+        return d;
+      }
+    }
+    return null;
   }
 
   public void addDocument(Document document) {

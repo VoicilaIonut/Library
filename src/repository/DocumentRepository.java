@@ -8,15 +8,17 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public interface DocumentRepository {
-  public Document getDocumentByTitle(String title);
+  List<Document> getDocumentsByTitle(String title);
 
-  public List<Document> getDocumentsByAuthor(Author author);
+  List<Document> getDocumentsByAuthor(Author author);
 
-  public List<Document> getDocuments();
+  List<Document> getDocuments();
 
-  public PriorityQueue<Document> getDocumentsByPopularity();
+  PriorityQueue<Document> getDocumentsByPopularity();
 
-  public List<Document> getDocumentsByCategory(Category category);
+  List<Document> getDocumentsByCategory(Category category);
 
-  public void addDocument(Document document);
+  Document getDocumentByTitle(String title);
+
+  void addDocument(Document document);
 }
