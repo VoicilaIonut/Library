@@ -20,6 +20,22 @@ public class Article extends Document {
     this.number = number;
   }
 
+  public Article(
+      int id,
+      String title,
+      int authorId,
+      int categoryId,
+      int year,
+      int pages,
+      String journal,
+      int volume,
+      int number) {
+    super(id, title, authorId, categoryId, year, pages);
+    this.journal = journal;
+    this.volume = volume;
+    this.number = number;
+  }
+
   public String toString() {
     return "Article{"
         + "id='"

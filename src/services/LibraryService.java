@@ -2,6 +2,8 @@ package services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+
 import model.*;
 import repository.*;
 
@@ -41,7 +43,7 @@ public class LibraryService {
     Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
     Publisher publisher = publisherRepository.getPublisherOrCreate(publisherName, publisherEmail);
     Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
-    documentRepository.addDocument(
+    documentRepository.addBook(
         new Book(
             documentTitle, author, ISBN, category, publisher, documentYear, documentPages, copies));
     return new Response(true, "Book added successfully");
@@ -59,33 +61,49 @@ public class LibraryService {
       int number) {
     Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
     Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
-    documentRepository.addDocument(
+    documentRepository.addArticle(
         new Article(
             documentTitle, author, category, journal, volume, number, documentYear, documentPages));
     return new Response(true, "Article added successfully");
   }
 
-  public List<Document> getDocumentsByAuthor(String authorName) {
-    Author author = authorRepository.getAuthorOrCreate(authorName, "");
+  public List<Document> getDocumentsByAuthor(int id) {
+    Author author = authorRepository.getAuthorById(id);
     return documentRepository.getDocumentsByAuthor(author);
   }
 
-  public List<Document> getDocumentsByCategory(String categoryName) {
-    Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
+  public List<Document> getDocumentsByCategory(int id) {
+    Category category = categoryRepository.getCategoryById(id);
     return documentRepository.getDocumentsByCategory(category);
   }
 
-  public List<Document> getDocumentsByTitle(String title) {
-    return documentRepository.getDocumentsByTitle(title);
+  public List<Document> getAllDocumentsByTitle(String title) {
+    return documentRepository.getAllDocumentsByTitle(title);
   }
 
   public List<Document> getAllDocumentsByPopularity() {
-    return documentRepository.getDocumentsByPopularity().stream().toList();
+    PriorityQueue<Document> documentsByPopularity = new PriorityQueue<>(new DocumentComparator());
+    List<Document> aux = documentRepository.getDocuments();
+    if (aux == null) {
+      return null;
+    }
+    documentsByPopularity.addAll(aux);
+    aux = documentRepository.getArticles();
+    if (aux == null) {
+      return null;
+    }
+    documentsByPopularity.addAll(aux);
+    aux = documentRepository.getBooks();
+    if (aux == null) {
+      return null;
+    }
+    documentsByPopularity.addAll(aux);
+    return new ArrayList<>(documentsByPopularity);
   }
 
   public List<Book> getBooks() {
     List<Book> books = new ArrayList<>();
-    for (Document document : documentRepository.getDocuments()) {
+    for (Document document : documentRepository.getBooks()) {
       if (document instanceof Book) {
         books.add((Book) document);
       }
@@ -95,7 +113,7 @@ public class LibraryService {
 
   public List<Article> getArticles() {
     List<Article> articles = new ArrayList<>();
-    for (Document document : documentRepository.getDocuments()) {
+    for (Document document : documentRepository.getArticles()) {
       if (document instanceof Article) {
         articles.add((Article) document);
       }
@@ -124,7 +142,10 @@ public class LibraryService {
     if (user == null) {
       return new Response(false, "User not found");
     }
-    Document document = documentRepository.getDocumentByTitle(documentTitle);
+    Document document =
+        documentRepository
+            .getAllDocumentsByTitle(documentTitle)
+            .get(0); // TODO: Add some logic to handle multiple documents with the same title.
     if (document == null) {
       return new Response(false, "Document not found");
     }
@@ -136,8 +157,9 @@ public class LibraryService {
     } else {
       return new Response(false, "Only books can be loaned");
     }
-    loanRepository.addLoan(new Loan((Book) document, user, "date", "dueDate"));
-    return new Response(true, "Loan added");
+    Response response = loanRepository.addLoan(new Loan((Book) document, user, "date", "dueDate"));
+    book.loan();
+    return response;
   }
 
   public Response completeLoan(String userEmail, String documentTitle) {
@@ -145,7 +167,8 @@ public class LibraryService {
     if (user == null) {
       return new Response(false, "User not found");
     }
-    Document document = documentRepository.getDocumentByTitle(documentTitle);
+    Document document =
+        documentRepository.getAllDocumentsByTitle(documentTitle).get(0); // TODO: Same as above.
     if (document == null) {
       return new Response(false, "Document not found");
     }
@@ -157,5 +180,9 @@ public class LibraryService {
     }
     loan.completeLoan();
     return new Response(true, "Loan completed");
+  }
+
+  public List<User> getUsers() {
+    return userRepository.getUsers();
   }
 }

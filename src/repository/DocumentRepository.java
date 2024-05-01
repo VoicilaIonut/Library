@@ -1,24 +1,29 @@
 package repository;
 
-import model.Author;
-import model.Category;
-import model.Document;
+import model.*;
 
 import java.util.List;
-import java.util.PriorityQueue;
 
 public interface DocumentRepository {
-  List<Document> getDocumentsByTitle(String title);
 
   List<Document> getDocumentsByAuthor(Author author);
 
-  List<Document> getDocuments();
+  public List<Document> getArticles();
 
-  PriorityQueue<Document> getDocumentsByPopularity();
+  public List<Document> getBooks();
+
+  List<Document> getDocuments();
 
   List<Document> getDocumentsByCategory(Category category);
 
+  Response addDocument(Document document);
+
+  Response addBook(Book book);
+
+  Response addArticle(Article article);
+
+  List<Document> getAllDocumentsByTitle(String title);
+
   Document getDocumentByTitle(String title);
 
-  void addDocument(Document document);
 }

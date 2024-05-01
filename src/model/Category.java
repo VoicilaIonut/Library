@@ -2,12 +2,18 @@ package model;
 
 public class Category {
   protected static int idCounter = 0;
-  protected String id;
+  protected int id;
   protected String name;
   protected String description;
 
   public Category(String name, String description) {
-    this.id = String.valueOf(++idCounter);
+    this.id = ++idCounter;
+    this.name = name;
+    this.description = description;
+  }
+
+  public Category(int id, String name, String description) {
+    this.id = id;
     this.name = name;
     this.description = description;
   }

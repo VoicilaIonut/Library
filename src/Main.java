@@ -42,70 +42,71 @@ public class Main {
   public static void main(String[] args) {
     LibraryService libraryService = new LibraryService();
     Response response = null;
-    response = libraryService.addDocument("author1", "email", "category1", "document1", 2020, 1);
+    //    response = libraryService.addDocument("author1", "email", "category1", "document1", 2020,
+    // 1);
+    //    System.out.println(response.getMessage());
+    //
+    //    response =
+    //        libraryService.addBook(
+    //            "author1", "email", "publisher1", "email", "category1", "book1", 2020, 1, "12345",
+    // 1);
+    //    System.out.println(response.getMessage());
+    //
+    //    response =
+    //        libraryService.addArticle(
+    //            "author1", "email", "category1", "article1", 2021, 1, "journal1", 1, 1);
+    //    System.out.println(response.getMessage());
+    //    System.out.println("All documents by popularity:");
+    //
+    //    List<Document> documents = libraryService.getAllDocumentsByPopularity();
+    //    for (Document document : documents) {
+    //      System.out.println(document);
+    //    }
+    //    System.out.println("Books:");
+    //    List<Book> books = libraryService.getBooks();
+    //    for (Book book : books) {
+    //      System.out.println(book);
+    //    }
+    //    System.out.println("Articles:");
+    //    List<Article> articles = libraryService.getArticles();
+    //    for (Article article : articles) {
+    //      System.out.println(article);
+    //    }
+    //    List<Document> documentsByAuthor = libraryService.getDocumentsByAuthor(1);
+    //    System.out.println("Documents by author with id =\"1\":");
+    //    for (Document document : documentsByAuthor) {
+    //      System.out.println(document);
+    //    }
+    //    List<Document> documentsByCategory = libraryService.getDocumentsByCategory(1);
+    //    System.out.println("Documents by category with id =\"1\":");
+    //    for (Document document : documentsByCategory) {
+    //      System.out.println(document);
+    //    }
+    //    List<Document> documentsByTitle = libraryService.getAllDocumentsByTitle("article1");
+    //    System.out.println("Documents by title \"article1\":");
+    //    for (Document document : documentsByTitle) {
+    //      System.out.println(document);
+    //    }
+
+    //    response = libraryService.addUser("name", "email");
+    //    System.out.println(response.getMessage());
+    //
+    response = libraryService.addLoan("email", "book1");
     System.out.println(response.getMessage());
 
-    response =
-        libraryService.addBook(
-            "author1", "email", "publisher1", "email", "category1", "book1", 2020, 1, "12345", 1);
+    response = libraryService.addLoan("email", "book1");
     System.out.println(response.getMessage());
 
-    response =
-        libraryService.addArticle(
-            "author1", "email", "category1", "article1", 2021, 1, "journal1", 1, 1);
+    response = libraryService.completeLoan("email", "book1");
     System.out.println(response.getMessage());
 
+    response = libraryService.completeLoan("email", "book1");
+    System.out.println(response.getMessage());
+
+    //    libraryService.addBook(
+    //        "author1", "email", "publisher1", "email", "category1", "book2", 2025, 1, "12345", 1);
     System.out.println("All documents by popularity:");
-
     List<Document> documents = libraryService.getAllDocumentsByPopularity();
-    for (Document document : documents) {
-      System.out.println(document);
-    }
-    System.out.println("Books:");
-    List<Book> books = libraryService.getBooks();
-    for (Book book : books) {
-      System.out.println(book);
-    }
-    System.out.println("Articles:");
-    List<Article> articles = libraryService.getArticles();
-    for (Article article : articles) {
-      System.out.println(article);
-    }
-    List<Document> documentsByAuthor = libraryService.getDocumentsByAuthor("nobody");
-    System.out.println("Documents by author \"nodoby\":");
-    for (Document document : documentsByAuthor) {
-      System.out.println(document);
-    }
-    List<Document> documentsByCategory = libraryService.getDocumentsByCategory("category1");
-    System.out.println("Documents by category \"category1\":");
-    for (Document document : documentsByCategory) {
-      System.out.println(document);
-    }
-    List<Document> documentsByTitle = libraryService.getDocumentsByTitle("article1");
-    System.out.println("Documents by title \"article1\":");
-    for (Document document : documentsByTitle) {
-      System.out.println(document);
-    }
-
-    response = libraryService.addUser("name", "email");
-    System.out.println(response.getMessage());
-
-    response = libraryService.addLoan("email", "book1");
-    System.out.println(response.getMessage());
-
-    response = libraryService.addLoan("email", "book1");
-    System.out.println(response.getMessage());
-
-    response = libraryService.completeLoan("email", "book1");
-    System.out.println(response.getMessage());
-
-    response = libraryService.completeLoan("email", "book1");
-    System.out.println(response.getMessage());
-
-    libraryService.addBook(
-        "author1", "email", "publisher1", "email", "category1", "book2", 2025, 1, "12345", 1);
-    System.out.println("All documents by popularity:");
-    documents = libraryService.getAllDocumentsByPopularity();
     for (Document document : documents) {
       System.out.println(document);
     }
@@ -120,5 +121,45 @@ public class Main {
     for (Author author : authors) {
       System.out.println(author);
     }
+
+    List<User> users = libraryService.getUsers();
+    System.out.println("Users:");
+    for (User user : users) {
+      System.out.println(user);
+    }
   }
+
+  //  public static void main(String[] args) {
+  //    Connection conn = null;
+  //    try {
+  //      // Load SQLite JDBC driver
+  ////      Class.forName("org.sqlite.JDBC");
+  //
+  //      // db parameters
+  //      String url = "jdbc:sqlite:library.sqlite";
+  //      // create a connection to the database
+  //      conn = DriverManager.getConnection(url);
+  //
+  //      System.out.println("Connection to SQLite has been established.");
+  //
+  //    } catch (SQLException e) {
+  //      System.out.println(e.getMessage());
+  //    } finally {
+  //      try {
+  //        if (conn != null) {
+  //          conn.close();
+  //        }
+  //      } catch (SQLException ex) {
+  //        System.out.println(ex.getMessage());
+  //      }
+  //    }
+  //    System.out.println("Connection closed.");
+  //    System.out.println("Connection closed.");
+  //    System.out.println("Connection closed.");
+  //    System.out.println("Connection closed.");
+  //    System.out.println("Connection closed.");
+  //    System.out.println("Connection closed.");
+  //    System.out.println("Connection closed.");
+  //
+  //  }
 }

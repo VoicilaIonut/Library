@@ -2,12 +2,18 @@ package model;
 
 public class Author {
   protected static int idCounter = 0;
-  protected String id;
+  protected int id;
   protected String name;
   protected String email;
 
   public Author(String name, String email) {
-    this.id = String.valueOf(++idCounter);
+    this.id = ++idCounter;
+    this.name = name;
+    this.email = email;
+  }
+
+  public Author(int id, String name, String email) {
+    this.id = id;
     this.name = name;
     this.email = email;
   }

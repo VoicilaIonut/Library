@@ -1,11 +1,12 @@
 package repository;
 
 import model.Publisher;
+import model.Response;
 
 import java.util.List;
 
 public interface PublisherRepository {
-  void addPublisher(Publisher publisher);
+  Response addPublisher(Publisher publisher);
 
   List<Publisher> getPublishers();
 

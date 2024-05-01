@@ -2,12 +2,18 @@ package model;
 
 public class User {
   protected static int idCounter = 0;
-  protected String id;
+  protected int id;
   protected String name;
   protected String email;
 
   public User(String name, String email) {
-    this.id = String.valueOf(++idCounter);
+    this.id = ++idCounter;
+    this.name = name;
+    this.email = email;
+  }
+
+  public User(int id, String name, String email) {
+    this.id = id;
     this.name = name;
     this.email = email;
   }
@@ -26,7 +32,7 @@ public class User {
         + '}';
   }
 
-  public String getId() {
+  public int getId() {
     return this.id;
   }
 

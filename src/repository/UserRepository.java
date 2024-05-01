@@ -1,11 +1,12 @@
 package repository;
 
+import model.Response;
 import model.User;
 
 import java.util.List;
 
 public interface UserRepository {
-  void addUser(User user);
+  Response addUser(User user);
 
   User getUserByEmail(String email);
 
