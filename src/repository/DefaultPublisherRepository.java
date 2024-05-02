@@ -11,15 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultPublisherRepository implements PublisherRepository {
-  List<Publisher> publishers;
-
   private Connection getConnection() throws SQLException {
     return DriverManager.getConnection(DbConstants.URL);
   }
 
-  public DefaultPublisherRepository() {
-    publishers = new ArrayList<>();
-  }
+  public DefaultPublisherRepository() {}
 
   public List<Publisher> getPublishers() {
     String query = "SELECT * FROM Publisher";

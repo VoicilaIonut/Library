@@ -8,16 +8,12 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class DefaultLoanRepository implements LoanRepository {
-  //  List<Loan> loans;
 
   private Connection getConnection() throws SQLException {
     return DriverManager.getConnection(DbConstants.URL);
   }
 
-  public DefaultLoanRepository() {
-
-    //    this.loans = new ArrayList<>();
-  }
+  public DefaultLoanRepository() {}
 
   public List<Loan> getLoans() {
     String query = "SELECT * FROM Loan";

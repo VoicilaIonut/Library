@@ -6,13 +6,13 @@ import java.io.IOException;
 
 public class WriterCSV {
 
-  private static WriterCSV single_instance = null;
+  private static WriterCSV instance = null;
 
   private WriterCSV() {}
 
   public static synchronized WriterCSV getInstance() {
-    if (single_instance == null) single_instance = new WriterCSV();
-    return single_instance;
+    if (instance == null) instance = new WriterCSV();
+    return instance;
   }
 
   public void WriteAction(String action) {
