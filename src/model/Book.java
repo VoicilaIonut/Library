@@ -19,6 +19,7 @@ public class Book extends Document {
     super(title, author, category, year, pages);
     this.ISBN = ISBN;
     this.publisher = publisher;
+    this.publisherId = publisher.getId();
     this.copies = copies;
     this.loans_count = 0;
   }
@@ -49,17 +50,17 @@ public class Book extends Document {
         + ", title='"
         + title
         + '\''
-        + ", author='"
-        + author
+        + ", authorId='"
+        + authorId
         + '\''
         + ", ISBN='"
         + ISBN
         + '\''
-        + ", category='"
-        + category
+        + ", categoryId='"
+        + categoryId
         + '\''
-        + ", publisher='"
-        + publisher
+        + ", publisherId='"
+        + publisherId
         + '\''
         + ", year="
         + year
@@ -78,11 +79,6 @@ public class Book extends Document {
 
   public int getNumberOfLoans() {
     return this.loans_count;
-  }
-
-  public void loan() {
-    this.copies--;
-    this.loans_count++;
   }
 
   public void returnBook() {

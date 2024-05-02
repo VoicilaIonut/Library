@@ -1,13 +1,12 @@
 package model;
 
 public class User {
-  protected static int idCounter = 0;
   protected int id;
   protected String name;
   protected String email;
 
   public User(String name, String email) {
-    this.id = ++idCounter;
+    this.id = -1;
     this.name = name;
     this.email = email;
   }
@@ -30,6 +29,10 @@ public class User {
         + email
         + '\''
         + '}';
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 
   public int getId() {

@@ -1,9 +1,9 @@
 package services;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
-
 import model.*;
 import repository.*;
 
@@ -24,6 +24,9 @@ public class LibraryService {
       int documentPages) {
     Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
     Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
+    if (author == null || category == null) {
+      return new Response(false, "Author or category failed to be created");
+    }
     documentRepository.addDocument(
         new Document(documentTitle, author, category, documentYear, documentPages));
     return new Response(true, "Document added successfully");
@@ -43,6 +46,9 @@ public class LibraryService {
     Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
     Publisher publisher = publisherRepository.getPublisherOrCreate(publisherName, publisherEmail);
     Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
+    if (author == null || publisher == null || category == null) {
+      return new Response(false, "Author, publisher or category failed to be created");
+    }
     documentRepository.addBook(
         new Book(
             documentTitle, author, ISBN, category, publisher, documentYear, documentPages, copies));
@@ -61,6 +67,9 @@ public class LibraryService {
       int number) {
     Author author = authorRepository.getAuthorOrCreate(authorName, authorEmail);
     Category category = categoryRepository.getCategoryByNameOrCreate(categoryName, "");
+    if (author == null || category == null) {
+      return new Response(false, "Author or category failed to be created");
+    }
     documentRepository.addArticle(
         new Article(
             documentTitle, author, category, journal, volume, number, documentYear, documentPages));
@@ -131,8 +140,7 @@ public class LibraryService {
 
   public Response addUser(String name, String email) {
     if (userRepository.getUserByEmail(email) == null) {
-      userRepository.addUser(new User(name, email));
-      return new Response(true, "User added successfully");
+      return userRepository.addUser(new User(name, email));
     }
     return new Response(false, "User already exists");
   }
@@ -142,47 +150,58 @@ public class LibraryService {
     if (user == null) {
       return new Response(false, "User not found");
     }
-    Document document =
-        documentRepository
-            .getAllDocumentsByTitle(documentTitle)
-            .get(0); // TODO: Add some logic to handle multiple documents with the same title.
-    if (document == null) {
-      return new Response(false, "Document not found");
+    Book book =
+        documentRepository.getBooks().stream()
+            .filter(
+                document ->
+                    document.getTitle().equals(documentTitle) && ((Book) document).getCopies() > 0)
+            .map(document -> (Book) document)
+            .findFirst()
+            .orElse(null);
+
+    if (book == null) {
+      return new Response(false, "Document not available at this time");
     }
 
-    if (document instanceof Book book) {
-      if (book.getCopies() == 0) {
-        return new Response(false, "No copies available");
-      }
-    } else {
-      return new Response(false, "Only books can be loaned");
+    Response loanResponse = loanRepository.addLoan(new Loan(book, user, "date", "dueDate"));
+    if (!loanResponse.isSuccess()) {
+      return loanResponse;
     }
-    Response response = loanRepository.addLoan(new Loan((Book) document, user, "date", "dueDate"));
-    book.loan();
-    return response;
+    Response bookResponse = documentRepository.loanBook(book);
+    if (!bookResponse.isSuccess()) {
+      // This may fail, but we don't want to keep the loan if something went wrong.
+      loanRepository.deleteLoan(((Loan) loanResponse.getData()).getId());
+      return bookResponse;
+    }
+    return new Response(true, "Loan added successfully", loanResponse.getData());
   }
 
-  public Response completeLoan(String userEmail, String documentTitle) {
-    User user = userRepository.getUserByEmail(userEmail);
-    if (user == null) {
-      return new Response(false, "User not found");
-    }
-    Document document =
-        documentRepository.getAllDocumentsByTitle(documentTitle).get(0); // TODO: Same as above.
-    if (document == null) {
-      return new Response(false, "Document not found");
-    }
-    Loan loan = loanRepository.getLoan(user, (Book) document);
+  public Response completeLoan(int id) {
+    Loan loan = loanRepository.getLoan(id);
     if (loan == null) {
       return new Response(false, "Loan not found");
-    } else if (loan.isCompleted()) {
+    }
+    if (loan.isCompleted()) {
       return new Response(false, "Loan already completed");
     }
-    loan.completeLoan();
-    return new Response(true, "Loan completed");
+
+    Response bookResponse = documentRepository.completeLoanBook(loan.getBookId());
+    if (!bookResponse.isSuccess()) {
+      return bookResponse;
+    }
+
+    loan.setReturnDate(Date.from(new Date().toInstant()).toString());
+    loan.setReturned(true);
+
+    loanRepository.completeLoan(loan);
+    return new Response(true, "Loan completed successfully");
   }
 
   public List<User> getUsers() {
     return userRepository.getUsers();
+  }
+
+  public List<Loan> getLoans() {
+    return loanRepository.getLoans();
   }
 }

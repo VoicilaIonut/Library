@@ -21,9 +21,10 @@ public class DefaultAuthorRepository implements AuthorRepository {
       PreparedStatement stmt = conn.prepareStatement(query);
       ResultSet rs = stmt.executeQuery();
       while (rs.next()) {
+        int id = rs.getInt("id");
         String name = rs.getString("name");
         String email = rs.getString("email");
-        Author author = new Author(name, email);
+        Author author = new Author(id, name, email);
         authors.add(author);
       }
     } catch (SQLException e) {
@@ -40,9 +41,10 @@ public class DefaultAuthorRepository implements AuthorRepository {
       stmt.setInt(1, id);
       ResultSet rs = stmt.executeQuery();
       if (rs.next()) {
+        int authorId = rs.getInt("id");
         String name = rs.getString("name");
         String email = rs.getString("email");
-        return new Author(id, name, email);
+        return new Author(authorId, name, email);
       }
     } catch (SQLException e) {
       e.printStackTrace();
@@ -53,27 +55,43 @@ public class DefaultAuthorRepository implements AuthorRepository {
   public Response addAuthor(Author author) {
     String query = "INSERT INTO Author (name, email) VALUES (?, ?)";
     try (Connection conn = getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query)) {
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
       stmt.setString(1, author.getName());
       stmt.setString(2, author.getEmail());
-      stmt.executeUpdate();
+      int affectedRows = stmt.executeUpdate();
+
+      if (affectedRows == 0) {
+        throw new SQLException("Creating author failed, no rows affected.");
+      }
+
+      try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          int id = generatedKeys.getInt(1);
+          author.setId(id);
+          return new Response(true, "Author added successfully.", author);
+        } else {
+          throw new SQLException("Creating author failed, no ID obtained.");
+        }
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      return new Response(false, "Failed to add author." + e.getMessage());
+      return new Response(false, "Failed to add author. " + e.getMessage());
     }
-    return new Response(true, "Author added successfully.");
   }
 
   public Author getAuthorOrCreate(String name, String email) {
-    for (Author a : getAuthors()) {
-      if (a.getName().equals(name) && a.getEmail().equals(email)) {
-        return a;
+    Author author =
+        getAuthors().stream()
+            .findFirst()
+            .filter(a -> a.getName().equals(name) && a.getEmail().equals(email))
+            .orElse(null);
+    if (author == null) {
+      Response response = addAuthor(new Author(name, email));
+      if (response.isSuccess()) {
+        return (Author) response.getData();
+      } else {
+        return null;
       }
-    }
-    Author author = new Author(name, email);
-    Response response = addAuthor(author);
-    if (!response.isSuccess()) {
-      return null;
     }
     return author;
   }

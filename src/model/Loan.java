@@ -1,9 +1,7 @@
 package model;
 
-import java.util.Date;
 
 public class Loan {
-  protected static int idCounter = 0;
   protected int id;
   protected int bookId;
   protected Book book;
@@ -13,17 +11,17 @@ public class Loan {
   protected String dueDate;
   protected String returnDate;
   protected boolean returned;
-  protected boolean extended;
 
   public Loan(Book book, User user, String date, String dueDate) {
-    this.id = ++idCounter;
+    this.id = -1;
     this.book = book;
+    this.bookId = book.getId();
     this.user = user;
+    this.userId = user.getId();
     this.date = date;
     this.dueDate = dueDate;
     this.returnDate = "";
     this.returned = false;
-    this.extended = false;
   }
 
   public Loan(
@@ -33,8 +31,7 @@ public class Loan {
       String date,
       String dueDate,
       String returnDate,
-      boolean returned,
-      boolean extended) {
+      boolean returned) {
     this.id = id;
     this.bookId = bookId;
     this.userId = userId;
@@ -42,7 +39,6 @@ public class Loan {
     this.dueDate = dueDate;
     this.returnDate = returnDate;
     this.returned = returned;
-    this.extended = extended;
   }
 
   public String toString() {
@@ -50,11 +46,11 @@ public class Loan {
         + "id='"
         + id
         + '\''
-        + ", book='"
-        + book
+        + ", bookId='"
+        + bookId
         + '\''
-        + ", user='"
-        + user
+        + ", userId='"
+        + userId
         + '\''
         + ", date='"
         + date
@@ -67,9 +63,19 @@ public class Loan {
         + '\''
         + ", returned="
         + returned
-        + ", extended="
-        + extended
         + '}';
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setReturnDate(String returnDate) {
+    this.returnDate = returnDate;
+  }
+
+  public void setReturned(boolean returned) {
+    this.returned = returned;
   }
 
   public int getId() {
@@ -92,12 +98,6 @@ public class Loan {
     return this.userId;
   }
 
-  public void completeLoan() {
-    this.book.returnBook();
-    this.returned = true;
-    this.returnDate = new Date().toString();
-    this.book.returnBook();
-  }
 
   public boolean isCompleted() {
     return this.returned;
@@ -117,9 +117,5 @@ public class Loan {
 
   public boolean isReturned() {
     return this.returned;
-  }
-
-  public boolean isExtended() {
-    return this.extended;
   }
 }

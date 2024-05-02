@@ -44,11 +44,11 @@ public class Article extends Document {
         + ", title='"
         + title
         + '\''
-        + ", author='"
-        + author
+        + ", authorId='"
+        + authorId
         + '\''
-        + ", category='"
-        + category
+        + ", categoryId='"
+        + categoryId
         + '\''
         + ", year="
         + year

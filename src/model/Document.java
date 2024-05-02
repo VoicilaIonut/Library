@@ -1,9 +1,6 @@
 package model;
 
-
 public class Document {
-
-  protected static int idCounter = 0;
   protected int id;
   protected String title;
   protected Author author;
@@ -14,10 +11,12 @@ public class Document {
   protected int pages;
 
   public Document(String title, Author author, Category category, int year, int pages) {
-    this.id = ++idCounter;
+    this.id = -1;
     this.title = title;
     this.author = author;
+    this.authorId = author.getId();
     this.category = category;
+    this.categoryId = category.getId();
     this.year = year;
     this.pages = pages;
   }
@@ -39,17 +38,21 @@ public class Document {
         + ", title='"
         + title
         + '\''
-        + ", author='"
-        + author
+        + ", authorId='"
+        + authorId
         + '\''
-        + ", category='"
-        + category
+        + ", categoryId='"
+        + categoryId
         + '\''
         + ", year="
         + year
         + ", pages="
         + pages
         + '}';
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 
   public int getId() {

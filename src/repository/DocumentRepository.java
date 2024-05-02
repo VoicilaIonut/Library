@@ -8,9 +8,9 @@ public interface DocumentRepository {
 
   List<Document> getDocumentsByAuthor(Author author);
 
-  public List<Document> getArticles();
+  List<Document> getArticles();
 
-  public List<Document> getBooks();
+  List<Document> getBooks();
 
   List<Document> getDocuments();
 
@@ -24,6 +24,7 @@ public interface DocumentRepository {
 
   List<Document> getAllDocumentsByTitle(String title);
 
-  Document getDocumentByTitle(String title);
+  Response loanBook(Book book);
 
+  Response completeLoanBook(int book);
 }

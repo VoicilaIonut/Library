@@ -36,26 +36,36 @@ public class DefaultUserRepository implements UserRepository {
   }
 
   public User getUserByEmail(String email) {
-    for (User user : getUsers()) {
-      if (user.getEmail().equals(email)) {
-        return user;
-      }
-    }
-    return null;
+    return getUsers().stream()
+        .filter(user -> user.getEmail().equals(email))
+        .findFirst()
+        .orElse(null);
   }
 
   public Response addUser(User user) {
-    String query = "INSERT INTO User (id, name, email) VALUES (?, ?, ?)";
+    String query = "INSERT INTO User (name, email) VALUES (?, ?)";
     try (Connection conn = getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query)) {
-      stmt.setInt(1, user.getId());
-      stmt.setString(2, user.getName());
-      stmt.setString(3, user.getEmail());
-      stmt.executeUpdate();
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+      stmt.setString(1, user.getName());
+      stmt.setString(2, user.getEmail());
+      int affectedRows = stmt.executeUpdate();
+
+      if (affectedRows == 0) {
+        throw new SQLException("Creating user failed, no rows affected.");
+      }
+
+      try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          int id = generatedKeys.getInt(1);
+          user.setId(id);
+          return new Response(true, "User added successfully.", user);
+        } else {
+          throw new SQLException("Creating user failed, no ID obtained.");
+        }
+      }
     } catch (SQLException e) {
       e.printStackTrace();
       return new Response(false, "Failed to add user." + e.getMessage());
     }
-    return new Response(true, "User added successfully");
   }
 }

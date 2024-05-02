@@ -6,6 +6,7 @@ import model.Response;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,30 +45,44 @@ public class DefaultPublisherRepository implements PublisherRepository {
   }
 
   public Response addPublisher(Publisher publisher) {
-    String query = "INSERT INTO Publisher (id, name, email) VALUES (?, ?, ?)";
+    String query = "INSERT INTO Publisher (name, email) VALUES (?, ?)";
     try (Connection conn = getConnection();
-        var stmt = conn.prepareStatement(query)) {
-      stmt.setInt(1, publisher.getId());
-      stmt.setString(2, publisher.getName());
-      stmt.setString(3, publisher.getEmail());
-      stmt.executeUpdate();
+        var stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+      stmt.setString(1, publisher.getName());
+      stmt.setString(2, publisher.getEmail());
+      int affectedRows = stmt.executeUpdate();
+
+      if (affectedRows == 0) {
+        throw new SQLException("Creating user failed, no rows affected.");
+      }
+      try (var generatedKeys = stmt.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          int id = generatedKeys.getInt(1);
+          publisher.setId(id);
+          return new Response(true, "Publisher added successfully.", publisher);
+        } else {
+          throw new SQLException("Creating user failed, no ID obtained.");
+        }
+      }
     } catch (SQLException e) {
       e.printStackTrace();
       return new Response(false, "Failed to add the publisher." + e.getMessage());
     }
-    return new Response(true, "Publisher added successfully.");
   }
 
   public Publisher getPublisherOrCreate(String name, String email) {
-    for (Publisher p : getPublishers()) {
-      if (p.getName().equals(name) && p.getEmail().equals(email)) {
-        return p;
+    Publisher publisher =
+        getPublishers().stream()
+            .filter(p -> p.getName().equals(name) && p.getEmail().equals(email))
+            .findFirst()
+            .orElse(null);
+    if (publisher == null) {
+      Response response = addPublisher(new Publisher(name, email));
+      if (response.isSuccess()) {
+        publisher = (Publisher) response.getData();
+      } else {
+        return null;
       }
-    }
-    Publisher publisher = new Publisher(name, email);
-    Response response = addPublisher(publisher);
-    if (!response.isSuccess()) {
-      return null;
     }
     return publisher;
   }

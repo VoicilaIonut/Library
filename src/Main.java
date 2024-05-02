@@ -41,66 +41,64 @@ import services.*;
 public class Main {
   public static void main(String[] args) {
     LibraryService libraryService = new LibraryService();
-    Response response = null;
+    Response response;
     //    response = libraryService.addDocument("author1", "email", "category1", "document1", 2020,
     // 1);
     //    System.out.println(response.getMessage());
-    //
+
     //    response =
     //        libraryService.addBook(
     //            "author1", "email", "publisher1", "email", "category1", "book1", 2020, 1, "12345",
     // 1);
     //    System.out.println(response.getMessage());
     //
-    //    response =
-    //        libraryService.addArticle(
-    //            "author1", "email", "category1", "article1", 2021, 1, "journal1", 1, 1);
-    //    System.out.println(response.getMessage());
-    //    System.out.println("All documents by popularity:");
-    //
-    //    List<Document> documents = libraryService.getAllDocumentsByPopularity();
-    //    for (Document document : documents) {
-    //      System.out.println(document);
-    //    }
-    //    System.out.println("Books:");
-    //    List<Book> books = libraryService.getBooks();
-    //    for (Book book : books) {
-    //      System.out.println(book);
-    //    }
-    //    System.out.println("Articles:");
-    //    List<Article> articles = libraryService.getArticles();
-    //    for (Article article : articles) {
-    //      System.out.println(article);
-    //    }
-    //    List<Document> documentsByAuthor = libraryService.getDocumentsByAuthor(1);
-    //    System.out.println("Documents by author with id =\"1\":");
-    //    for (Document document : documentsByAuthor) {
-    //      System.out.println(document);
-    //    }
-    //    List<Document> documentsByCategory = libraryService.getDocumentsByCategory(1);
-    //    System.out.println("Documents by category with id =\"1\":");
-    //    for (Document document : documentsByCategory) {
-    //      System.out.println(document);
-    //    }
-    //    List<Document> documentsByTitle = libraryService.getAllDocumentsByTitle("article1");
-    //    System.out.println("Documents by title \"article1\":");
-    //    for (Document document : documentsByTitle) {
-    //      System.out.println(document);
-    //    }
+    //        response =
+    //            libraryService.addArticle(
+    //                "author1", "email", "category1", "article1", 2021, 1, "journal1", 1, 1);
+    //        System.out.println(response.getMessage());
+    System.out.println("All documents by popularity:");
+
+    System.out.println("Books:");
+    List<Book> books = libraryService.getBooks();
+    for (Book book : books) {
+      System.out.println(book);
+    }
+    System.out.println("Articles:");
+    List<Article> articles = libraryService.getArticles();
+    for (Article article : articles) {
+      System.out.println(article);
+    }
+    List<Document> documentsByAuthor = libraryService.getDocumentsByAuthor(1);
+    System.out.println("Documents by author with id =\"1\":");
+    for (Document document : documentsByAuthor) {
+      System.out.println(document);
+    }
+    List<Document> documentsByCategory = libraryService.getDocumentsByCategory(1);
+    System.out.println("Documents by category with id =\"1\":");
+    for (Document document : documentsByCategory) {
+      System.out.println(document);
+    }
+    List<Document> documentsByTitle = libraryService.getAllDocumentsByTitle("article1");
+    System.out.println("Documents by title \"article1\":");
+    for (Document document : documentsByTitle) {
+      System.out.println(document);
+    }
 
     //    response = libraryService.addUser("name", "email");
     //    System.out.println(response.getMessage());
+
+    response = libraryService.addLoan("email", "book1");
+    System.out.println(response.getMessage());
+    int id1 = ((Loan) response.getData()).getId();
+
+    response = libraryService.addLoan("email", "book1");
+    System.out.println(response.getMessage());
+    //    int id2 = ((Loan) response.getData()).getId();
     //
-    response = libraryService.addLoan("email", "book1");
+    response = libraryService.completeLoan(id1);
     System.out.println(response.getMessage());
 
-    response = libraryService.addLoan("email", "book1");
-    System.out.println(response.getMessage());
-
-    response = libraryService.completeLoan("email", "book1");
-    System.out.println(response.getMessage());
-
-    response = libraryService.completeLoan("email", "book1");
+    response = libraryService.completeLoan(id1);
     System.out.println(response.getMessage());
 
     //    libraryService.addBook(
@@ -126,6 +124,12 @@ public class Main {
     System.out.println("Users:");
     for (User user : users) {
       System.out.println(user);
+    }
+
+    List<Loan> loans = libraryService.getLoans();
+    System.out.println("Loans:");
+    for (Loan loan : loans) {
+      System.out.println(loan);
     }
   }
 

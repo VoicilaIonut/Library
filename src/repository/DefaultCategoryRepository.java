@@ -36,15 +36,28 @@ public class DefaultCategoryRepository implements CategoryRepository {
   public Response addCategory(Category category) {
     String query = "INSERT INTO Category (name, description) VALUES (?, ?)";
     try (Connection conn = getConnection();
-        PreparedStatement stmt = conn.prepareStatement(query)) {
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
       stmt.setString(1, category.getName());
       stmt.setString(2, category.getDescription());
-      stmt.executeUpdate();
+      int affectedRows = stmt.executeUpdate();
+
+      if (affectedRows == 0) {
+        throw new SQLException("Creating category failed, no rows affected.");
+      }
+
+      try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          int id = generatedKeys.getInt(1);
+          category.setId(id);
+          return new Response(true, "Category added successfully.", category);
+        } else {
+          throw new SQLException("Creating category failed, no ID obtained.");
+        }
+      }
     } catch (SQLException e) {
       e.printStackTrace();
-      return new Response(false, "Category could not be added");
+      return new Response(false, "Failed to add category. " + e.getMessage());
     }
-    return new Response(true, "Category added successfully");
   }
 
   public Category getCategoryById(int id) {
@@ -65,15 +78,15 @@ public class DefaultCategoryRepository implements CategoryRepository {
   }
 
   public Category getCategoryByNameOrCreate(String name, String description) {
-    for (Category c : getCategories()) {
-      if (c.getName().equals(name)) {
-        return c;
+    Category category =
+        getCategories().stream().filter(c -> c.getName().equals(name)).findFirst().orElse(null);
+    if (category == null) {
+      Response response = addCategory(new Category(name, description));
+      if (response.isSuccess()) {
+        return (Category) response.getData();
+      } else {
+        return null;
       }
-    }
-    Category category = new Category(name, description);
-    Response response = addCategory(category);
-    if (!response.isSuccess()) {
-      return null;
     }
     return category;
   }

@@ -1,13 +1,12 @@
 package model;
 
 public class Category {
-  protected static int idCounter = 0;
   protected int id;
   protected String name;
   protected String description;
 
   public Category(String name, String description) {
-    this.id = ++idCounter;
+    this.id = -1;
     this.name = name;
     this.description = description;
   }
@@ -16,6 +15,10 @@ public class Category {
     this.id = id;
     this.name = name;
     this.description = description;
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 
   public String toString() {
@@ -38,5 +41,9 @@ public class Category {
 
   public String getDescription() {
     return this.description;
+  }
+
+  public int getId() {
+    return this.id;
   }
 }

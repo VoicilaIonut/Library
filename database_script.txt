@@ -1,0 +1,76 @@
+CREATE TABLE User (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(255),
+  email VARCHAR(255)
+);
+
+CREATE TABLE Publisher (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255),
+    email VARCHAR(255)
+);
+
+CREATE TABLE Category (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(255),
+  description VARCHAR(255)
+);
+
+
+CREATE TABLE Document (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title VARCHAR(255),
+      authorId INTEGER,
+      categoryId INTEGER,
+      year INTEGER,
+      pages INTEGER,
+      FOREIGN KEY (categoryId) REFERENCES Category(id)
+);
+
+
+CREATE TABLE Book (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title VARCHAR(255),
+  authorId INTEGER,
+  categoryId INTEGER,
+  year INTEGER,
+  pages INTEGER,
+  ISBN VARCHAR(255),
+  publisherId INTEGER,
+  copies INTEGER,
+  loansCount INTEGER,
+  FOREIGN KEY (categoryId) REFERENCES Category(id)
+);
+
+
+CREATE TABLE Author (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255),
+    email VARCHAR(255)
+);
+
+
+CREATE TABLE Article (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     title VARCHAR(255),
+     authorId INTEGER,
+     categoryId INTEGER,
+     year INTEGER,
+     pages INTEGER,
+     journal VARCHAR(255),
+     volume INTEGER,
+     number INTEGER,
+     FOREIGN KEY (categoryId) REFERENCES Category(id)
+);
+
+CREATE TABLE Loan (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      bookId INTEGER,
+      userId INTEGER,
+      date VARCHAR(255),
+      dueDate VARCHAR(255),
+      returnDate VARCHAR(255),
+      returned BOOLEAN,
+      FOREIGN KEY (bookId) REFERENCES Book(id),
+      FOREIGN KEY (userId) REFERENCES User(id)
+);
