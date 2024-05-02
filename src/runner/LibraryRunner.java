@@ -2,7 +2,7 @@ package runner;
 
 import model.*;
 import repository.*;
-import services.LibraryService;
+import services.*;
 
 import java.util.List;
 import java.util.PriorityQueue;
@@ -18,11 +18,13 @@ class LibraryRunner {
             new DefaultPublisherRepository(),
             new DefaultLoanRepository(),
             new DefaultCategoryRepository());
-    while (true) displayMenu(libraryService);
+
+    WriterCSV writer = WriterCSV.getInstance();
+    while (true) displayMenu(libraryService, writer);
   }
 
-  private static void displayMenu(LibraryService libraryService) {
-    System.out.println(
+  private static void displayMenu(LibraryService libraryService, WriterCSV writer) {
+    String menu =
         """
                     1. List all documents by popularity
                     2. List documents
@@ -43,9 +45,18 @@ class LibraryRunner {
                     17. Loan a book
                     18. Complete a loan
                     19. Exit
-                    """);
+                    """;
+    System.out.println(menu);
     Scanner scanner = new Scanner(System.in);
     int option = Integer.parseInt(scanner.nextLine());
+
+    if (option < 1 || option > 19) {
+      writer.WriteAction("Invalid option");
+    } else {
+      int l = menu.indexOf(option + ". ");
+      int r = menu.indexOf("\n", l);
+      writer.WriteAction(menu.substring(l, r));
+    }
     switch (option) {
       case 1 -> listDocumentsByPopularity(libraryService);
       case 2 -> listDocuments(libraryService);
