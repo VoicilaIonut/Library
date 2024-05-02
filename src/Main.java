@@ -34,20 +34,12 @@
 import java.util.List;
 import java.util.PriorityQueue;
 import model.*;
-import repository.*;
 import services.*;
 
 public class Main {
   public static void main(String[] args) {
     //    Just for testing
-    LibraryService libraryService =
-        new LibraryService(
-            new DefaultDocumentRepository(),
-            new DefaultAuthorRepository(),
-            new DefaultUserRepository(),
-            new DefaultPublisherRepository(),
-            new DefaultLoanRepository(),
-            new DefaultCategoryRepository());
+    LibraryService libraryService = LibraryService.getInstance();
     Response response;
     response = libraryService.addDocument("author1", "email", "category1", "document1", 2020, 1);
     System.out.println(response.getMessage());

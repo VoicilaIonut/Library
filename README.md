@@ -15,18 +15,25 @@ Lista de tipuri de obiecte:
 8. Publisher
 
 Lista de acțiuni/interogări:
-1. Adaugă un document nou
-2. Adaugă o carte nouă
-3. Adaugă un articol nou
-4. Cauta documente după autor
-5. Cauta documente după categorie
-6. Cauta documente după titlu
-7. Returneaza lista de documente după popularitate (numărul de împrumuturi)
-8. Returneaza lista de cărți
-9. Adaugă un utilizator nou
-10. Împrumută o carte
-11. Completează un împrumut
-12. ? TBD
+
+1. List all documents by popularity
+2. List documents
+3. List books
+4. List articles
+5. List authors
+6. List publishers
+7. List users
+8. List loans
+9. List categories
+10. Add new document
+11. Add new book
+12. Add new article
+13. Search documents by author
+14. Search documents by category
+15. Search documents by title
+16. Add new user
+17. Loan a book
+18. Complete a loan
 
 Cerinte:
 1. [x]  clase simple cu atribute private / protected și metode de acces 

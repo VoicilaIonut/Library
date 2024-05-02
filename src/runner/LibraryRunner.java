@@ -1,24 +1,14 @@
 package runner;
 
-import model.*;
-import repository.*;
-import services.*;
-
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Scanner;
+import model.*;
+import services.*;
 
 class LibraryRunner {
   public static void main(String[] args) {
-    LibraryService libraryService =
-        new LibraryService(
-            new DefaultDocumentRepository(),
-            new DefaultAuthorRepository(),
-            new DefaultUserRepository(),
-            new DefaultPublisherRepository(),
-            new DefaultLoanRepository(),
-            new DefaultCategoryRepository());
-
+    LibraryService libraryService = LibraryService.getInstance();
     WriterCSV writer = WriterCSV.getInstance();
     while (true) displayMenu(libraryService, writer);
   }

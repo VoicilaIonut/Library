@@ -8,6 +8,9 @@ import model.*;
 import repository.*;
 
 public class LibraryService {
+
+  private static LibraryService instance = null;
+
   DocumentRepository documentRepository;
   AuthorRepository authorRepository;
   UserRepository userRepository;
@@ -15,19 +18,20 @@ public class LibraryService {
   LoanRepository loanRepository;
   CategoryRepository categoryRepository;
 
-  public LibraryService(
-      DocumentRepository documentRepository,
-      AuthorRepository authorRepository,
-      UserRepository userRepository,
-      PublisherRepository publisherRepository,
-      LoanRepository loanRepository,
-      CategoryRepository categoryRepository) {
-    this.documentRepository = documentRepository;
-    this.authorRepository = authorRepository;
-    this.userRepository = userRepository;
-    this.publisherRepository = publisherRepository;
-    this.loanRepository = loanRepository;
-    this.categoryRepository = categoryRepository;
+  private LibraryService() {
+    this.documentRepository = new DefaultDocumentRepository();
+    this.authorRepository = new DefaultAuthorRepository();
+    this.userRepository = new DefaultUserRepository();
+    this.publisherRepository = new DefaultPublisherRepository();
+    this.loanRepository = new DefaultLoanRepository();
+    this.categoryRepository = new DefaultCategoryRepository();
+  }
+
+  public static LibraryService getInstance() {
+    if (instance == null) {
+      instance = new LibraryService();
+    }
+    return instance;
   }
 
   public Response addDocument(
