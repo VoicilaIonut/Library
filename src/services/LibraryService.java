@@ -8,12 +8,27 @@ import model.*;
 import repository.*;
 
 public class LibraryService {
-  DocumentRepository documentRepository = new DefaultDocumentRepository();
-  AuthorRepository authorRepository = new DefaultAuthorRepository();
-  UserRepository userRepository = new DefaultUserRepository();
-  PublisherRepository publisherRepository = new DefaultPublisherRepository();
-  LoanRepository loanRepository = new DefaultLoanRepository();
-  CategoryRepository categoryRepository = new DefaultCategoryRepository();
+  DocumentRepository documentRepository;
+  AuthorRepository authorRepository;
+  UserRepository userRepository;
+  PublisherRepository publisherRepository;
+  LoanRepository loanRepository;
+  CategoryRepository categoryRepository;
+
+  public LibraryService(
+      DocumentRepository documentRepository,
+      AuthorRepository authorRepository,
+      UserRepository userRepository,
+      PublisherRepository publisherRepository,
+      LoanRepository loanRepository,
+      CategoryRepository categoryRepository) {
+    this.documentRepository = documentRepository;
+    this.authorRepository = authorRepository;
+    this.userRepository = userRepository;
+    this.publisherRepository = publisherRepository;
+    this.loanRepository = loanRepository;
+    this.categoryRepository = categoryRepository;
+  }
 
   public Response addDocument(
       String authorName,
@@ -78,11 +93,17 @@ public class LibraryService {
 
   public List<Document> getDocumentsByAuthor(int id) {
     Author author = authorRepository.getAuthorById(id);
+    if (author == null) {
+      return null;
+    }
     return documentRepository.getDocumentsByAuthor(author);
   }
 
   public List<Document> getDocumentsByCategory(int id) {
     Category category = categoryRepository.getCategoryById(id);
+    if (category == null) {
+      return null;
+    }
     return documentRepository.getDocumentsByCategory(category);
   }
 
@@ -90,7 +111,7 @@ public class LibraryService {
     return documentRepository.getAllDocumentsByTitle(title);
   }
 
-  public List<Document> getAllDocumentsByPopularity() {
+  public PriorityQueue<Document> getAllDocumentsByPopularity() {
     PriorityQueue<Document> documentsByPopularity = new PriorityQueue<>(new DocumentComparator());
     List<Document> aux = documentRepository.getDocuments();
     if (aux == null) {
@@ -107,7 +128,7 @@ public class LibraryService {
       return null;
     }
     documentsByPopularity.addAll(aux);
-    return new ArrayList<>(documentsByPopularity);
+    return documentsByPopularity;
   }
 
   public List<Book> getBooks() {
@@ -152,10 +173,9 @@ public class LibraryService {
     }
     Book book =
         documentRepository.getBooks().stream()
-            .filter(
-                document ->
-                    document.getTitle().equals(documentTitle) && ((Book) document).getCopies() > 0)
+            .filter(document -> document.getTitle().equals(documentTitle))
             .map(document -> (Book) document)
+            .filter(book1 -> book1.getCopies() > 0)
             .findFirst()
             .orElse(null);
 
@@ -203,5 +223,13 @@ public class LibraryService {
 
   public List<Loan> getLoans() {
     return loanRepository.getLoans();
+  }
+
+  public List<Category> getCategories() {
+    return categoryRepository.getCategories();
+  }
+
+  public List<Document> getDocuments() {
+    return documentRepository.getDocuments();
   }
 }

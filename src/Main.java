@@ -32,30 +32,35 @@
 // returned, the number of copies increases.
 
 import java.util.List;
-
+import java.util.PriorityQueue;
 import model.*;
+import repository.*;
 import services.*;
 
-// TODO: Create a console gui for the application to users to interact with the application, or
-// maybe use a web interface.
 public class Main {
   public static void main(String[] args) {
-    LibraryService libraryService = new LibraryService();
+    //    Just for testing
+    LibraryService libraryService =
+        new LibraryService(
+            new DefaultDocumentRepository(),
+            new DefaultAuthorRepository(),
+            new DefaultUserRepository(),
+            new DefaultPublisherRepository(),
+            new DefaultLoanRepository(),
+            new DefaultCategoryRepository());
     Response response;
-    //    response = libraryService.addDocument("author1", "email", "category1", "document1", 2020,
-    // 1);
-    //    System.out.println(response.getMessage());
+    response = libraryService.addDocument("author1", "email", "category1", "document1", 2020, 1);
+    System.out.println(response.getMessage());
 
-    //    response =
-    //        libraryService.addBook(
-    //            "author1", "email", "publisher1", "email", "category1", "book1", 2020, 1, "12345",
-    // 1);
-    //    System.out.println(response.getMessage());
-    //
-    //        response =
-    //            libraryService.addArticle(
-    //                "author1", "email", "category1", "article1", 2021, 1, "journal1", 1, 1);
-    //        System.out.println(response.getMessage());
+    response =
+        libraryService.addBook(
+            "author1", "email", "publisher1", "email", "category1", "book1", 2020, 1, "12345", 1);
+    System.out.println(response.getMessage());
+
+    response =
+        libraryService.addArticle(
+            "author1", "email", "category1", "article1", 2021, 1, "journal1", 1, 1);
+    System.out.println(response.getMessage());
     System.out.println("All documents by popularity:");
 
     System.out.println("Books:");
@@ -84,8 +89,8 @@ public class Main {
       System.out.println(document);
     }
 
-    //    response = libraryService.addUser("name", "email");
-    //    System.out.println(response.getMessage());
+    response = libraryService.addUser("name", "email");
+    System.out.println(response.getMessage());
 
     response = libraryService.addLoan("email", "book1");
     System.out.println(response.getMessage());
@@ -93,18 +98,17 @@ public class Main {
 
     response = libraryService.addLoan("email", "book1");
     System.out.println(response.getMessage());
-    //    int id2 = ((Loan) response.getData()).getId();
-    //
-    response = libraryService.completeLoan(id1);
-    System.out.println(response.getMessage());
 
     response = libraryService.completeLoan(id1);
     System.out.println(response.getMessage());
 
-    //    libraryService.addBook(
-    //        "author1", "email", "publisher1", "email", "category1", "book2", 2025, 1, "12345", 1);
+    response = libraryService.completeLoan(id1);
+    System.out.println(response.getMessage());
+
+    libraryService.addBook(
+        "author1", "email", "publisher1", "email", "category1", "book2", 2025, 1, "12345", 1);
     System.out.println("All documents by popularity:");
-    List<Document> documents = libraryService.getAllDocumentsByPopularity();
+    PriorityQueue<Document> documents = libraryService.getAllDocumentsByPopularity();
     for (Document document : documents) {
       System.out.println(document);
     }
@@ -132,38 +136,4 @@ public class Main {
       System.out.println(loan);
     }
   }
-
-  //  public static void main(String[] args) {
-  //    Connection conn = null;
-  //    try {
-  //      // Load SQLite JDBC driver
-  ////      Class.forName("org.sqlite.JDBC");
-  //
-  //      // db parameters
-  //      String url = "jdbc:sqlite:library.sqlite";
-  //      // create a connection to the database
-  //      conn = DriverManager.getConnection(url);
-  //
-  //      System.out.println("Connection to SQLite has been established.");
-  //
-  //    } catch (SQLException e) {
-  //      System.out.println(e.getMessage());
-  //    } finally {
-  //      try {
-  //        if (conn != null) {
-  //          conn.close();
-  //        }
-  //      } catch (SQLException ex) {
-  //        System.out.println(ex.getMessage());
-  //      }
-  //    }
-  //    System.out.println("Connection closed.");
-  //    System.out.println("Connection closed.");
-  //    System.out.println("Connection closed.");
-  //    System.out.println("Connection closed.");
-  //    System.out.println("Connection closed.");
-  //    System.out.println("Connection closed.");
-  //    System.out.println("Connection closed.");
-  //
-  //  }
 }
