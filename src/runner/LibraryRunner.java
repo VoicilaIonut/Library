@@ -34,7 +34,8 @@ class LibraryRunner {
                     16. Add new user
                     17. Loan a book
                     18. Complete a loan
-                    19. Exit
+                    19. Delete a loan
+                    20. Exit
                     """;
     System.out.println(menu);
     Scanner scanner = new Scanner(System.in);
@@ -57,16 +58,17 @@ class LibraryRunner {
       case 7 -> listUsers(libraryService);
       case 8 -> listLoans(libraryService);
       case 9 -> listCategories(libraryService);
-      case 10 -> addNewDocumnet(libraryService);
+      case 10 -> addNewDocument(libraryService);
       case 11 -> addNewBook(libraryService);
-      case 12 -> AddNewArticle(libraryService);
+      case 12 -> addNewArticle(libraryService);
       case 13 -> searchDocumentsByAuthor(libraryService);
       case 14 -> searchDocumentsByCategory(libraryService);
       case 15 -> searchDocumentsByTitle(libraryService);
       case 16 -> addNewUser(libraryService);
       case 17 -> loanABook(libraryService);
       case 18 -> completeALoan(libraryService);
-      case 19 -> exit();
+      case 19 -> deleteLoan(libraryService);
+      case 20 -> exit();
       default -> System.out.println("Invalid option");
     }
   }
@@ -78,7 +80,7 @@ class LibraryRunner {
     }
   }
 
-  private static void addNewDocumnet(LibraryService libraryService) {
+  private static void addNewDocument(LibraryService libraryService) {
     System.out.println("Enter the author name:");
     Scanner scanner = new Scanner(System.in);
     String authorName = scanner.nextLine();
@@ -135,7 +137,7 @@ class LibraryRunner {
     System.out.println(response.getMessage());
   }
 
-  private static void AddNewArticle(LibraryService libraryService) {
+  private static void addNewArticle(LibraryService libraryService) {
     System.out.println("Enter the author name:");
     Scanner scanner = new Scanner(System.in);
     String authorName = scanner.nextLine();
@@ -325,6 +327,14 @@ class LibraryRunner {
     for (Article article : articles) {
       System.out.println(article);
     }
+  }
+
+  private static void deleteLoan(LibraryService libraryService) {
+    System.out.println("Enter the loan id:");
+    Scanner scanner = new Scanner(System.in);
+    int loanId = Integer.parseInt(scanner.nextLine());
+    Response response = libraryService.deleteLoan(loanId);
+    System.out.println(response.getMessage());
   }
 
   private static void exit() {

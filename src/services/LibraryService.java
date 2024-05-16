@@ -236,4 +236,8 @@ public class LibraryService {
   public List<Document> getDocuments() {
     return documentRepository.getDocuments();
   }
+
+  public Response deleteLoan(int id) {
+    return loanRepository.deleteLoan(id);
+  }
 }
